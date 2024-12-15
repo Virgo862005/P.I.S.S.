@@ -1,0 +1,115 @@
+// App.js
+import React, { useState } from 'react';
+import { SafeAreaView, Button, View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
+
+const HomeScreen = ({ navigation, route }) => {
+  const { selections } = route.params || { selections: [] };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Home Screen</Text>
+      <View style={styles.buttonContainer}>
+        {['Option 1', 'Option 2', 'Option 3', 'Option 4', 'Option 5'].map((option, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[styles.button, selections.includes(option) && styles.selectedButton]}
+            onPress={() => navigation.navigate('Selection', { selections, option })}
+          >
+            <Text style={styles.buttonText}>{option}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Button title="Go to Selection" onPress={() => navigation.navigate('Selection', { selections })} />
+    </SafeAreaView>
+  );
+};
+
+const SelectionScreen = ({ navigation, route }) => {
+  const { selections: initialSelections } = route.params || { selections: [] };
+  const [selections, setSelections] = useState(initialSelections);
+  
+  const options = ['Large', 'Small', 'Express'];
+
+  const handleSelection = (option) => {
+    if (!selections.includes(option)) {
+      setSelections([...selections, option]);
+    }
+  };
+
+  const handleSubmit = () => {
+    navigation.navigate('Home', { selections });
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Selection Screen</Text>
+      <FlatList
+        data={options}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handleSelection(item)} style={styles.optionButton}>
+            <Text style={styles.optionText}>{item}</Text>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item}
+      />
+      <Button title="Submit Selections" onPress={handleSubmit} />
+    </SafeAreaView>
+  );
+};
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Selection" component={SelectionScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'black',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    color: 'white',
+    fontSize: 24,
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  button: {
+    backgroundColor: 'white',
+    margin: 10,
+    padding: 15,
+    borderRadius: 5,
+  },
+  selectedButton: {
+    backgroundColor: 'yellow',
+  },
+  buttonText: {
+    color: 'black',
+    fontSize: 16,
+  },
+  optionButton: {
+    backgroundColor: 'white',
+    margin: 10,
+    padding: 15,
+    borderRadius: 5,
+  },
+  optionText: {
+    color: 'black',
+    fontSize: 16,
+  },
+});
